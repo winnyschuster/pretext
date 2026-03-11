@@ -12,6 +12,7 @@ This log is historical. The current practical steering picture is:
 
 - Japanese now has two real canaries (`羅生門`, `蜘蛛の糸`), both clean at anchor widths and both still exposing a small positive one-line field on broader Chrome sweeps.
 - Chinese now has a real long-form canary (`祝福`) that is exact at Safari anchors and at Chrome `600 / 800`, but keeps a broader positive one-line field in Chrome at narrower widths.
+- Chinese now has two long-form canaries (`祝福`, `故鄉`) showing the same broad Chrome-positive / Safari-clean split, with real font sensitivity between `Songti SC` and `PingFang SC`.
 - Myanmar still has two real canaries with residual Chrome/Safari disagreement around quote/follower-style classes, so it remains the main unresolved Southeast Asian frontier.
 - Urdu now has a real Nastaliq/Naskh canary (`چغد`) with the same narrow-width negative field in Chrome and Safari, so it is clearly measuring a shaping/context class rather than dirty data or a browser-only quirk.
 - Arabic coarse corpora are clean; the remaining work there is mostly a fine-width edge-fit class, not the old preprocessing/corpus-hygiene problems.
@@ -955,6 +956,27 @@ Interpretation:
 - Chinese is a real canary, not a failure of corpus hygiene
 - unlike the Japanese field, the first useful signal here is font sensitivity more than a single recurring punctuation pattern
 - this makes Chinese a good reminder that “CJK is healthy” was too broad a conclusion from Japanese/Korean alone
+
+We then added a second Chinese prose canary from 魯迅’s `故鄉`, but this time through the rendered-page parse path instead of raw transclusion.
+
+What changed:
+- the raw page was mostly transclusion scaffolding, so the right acquisition method was the `parse` API plus paragraph extraction
+- keeping only real prose paragraphs produced a clean 96-paragraph corpus with no obvious print-wrap or header noise
+
+Results:
+- Chrome anchors were exact at `600 / 800`, but `300px` missed by two lines (`+64px`)
+- Safari anchors were exact at `300 / 600 / 800`
+- sampled Chrome sweep: `6/9 exact`
+- Chrome `step=10`: `53/61 exact`
+
+Font signal:
+- `Songti SC` was `3/5 exact`, missing `300` and `450`
+- `PingFang SC` improved `450`, but still missed `300`
+
+Interpretation:
+- the Chinese field is not specific to one story
+- the class is now stable enough to describe honestly: Safari is clean at the anchors, while Chrome keeps a narrow-width positive field that depends on the chosen Chinese font
+- that makes Chinese a genuine steering class, not just an extension of “Japanese already told us CJK is hard”
 
 ## Sampled cross-font corpus matrix
 

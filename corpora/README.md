@@ -37,6 +37,12 @@ Current bundle:
   - URL: <https://zh.wikisource.org/zh-hant/%E7%A5%9D%E7%A6%8F>
   - Acquisition: Wikisource raw text, trimmed to the story body after removing the header template
 
+- `zh-guxiang.txt`
+  - Language: Chinese
+  - Source: 魯迅, `故鄉`
+  - URL: <https://zh.wikisource.org/wiki/%E6%95%85%E9%84%89>
+  - Acquisition: Wikisource `parse` output, keeping only prose paragraphs after stripping page-number scaffolding and header tables
+
 - `th-nithan-vetal-story-1.txt`
   - Language: Thai
   - Source: `นิทานเวตาล/เรื่องที่ 1`

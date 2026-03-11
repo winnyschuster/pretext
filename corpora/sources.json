@@ -90,6 +90,24 @@
     "notes": "Chinese prose stress corpus from Wikisource raw text, trimmed to the story body after removing the header template."
   },
   {
+    "id": "zh-guxiang",
+    "language": "zh",
+    "direction": "ltr",
+    "title": "故鄉",
+    "source_url": "https://zh.wikisource.org/wiki/%E6%95%85%E9%84%89",
+    "output": "corpora/zh-guxiang.txt",
+    "font_family": "\"Songti SC\", \"PingFang SC\", \"Noto Serif CJK SC\", serif",
+    "font_size_px": 20,
+    "line_height_px": 32,
+    "default_width": 600,
+    "min_width": 300,
+    "max_width": 900,
+    "characters": 5716,
+    "lines": 191,
+    "acquired_via": "parse-trim",
+    "notes": "Second Chinese prose stress corpus from Wikisource parse output, keeping only prose paragraphs after stripping page-number scaffolding and header tables."
+  },
+  {
     "id": "th-nithan-vetal-story-1",
     "language": "th",
     "direction": "ltr",

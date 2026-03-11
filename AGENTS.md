@@ -63,6 +63,7 @@ Internal notes for contributors and agents. Use `README.md` as the public source
 - HarfBuzz probes need explicit LTR to avoid wrong direction on isolated Arabic words.
 - Accuracy pages and checkers are now expected to be green in all three installed browsers on fresh runs; if a page disagrees, suspect stale tabs/servers before changing the algorithm.
 - Accuracy/corpus/Gatsby checkers can use background-safe browser automation, but benchmark runs should stay foreground. Do not “optimize away” benchmark focus; throttled/background tabs make the numbers less trustworthy.
+- Do not run multiple browser corpus/sweep/font-matrix jobs in parallel against the same browser. The automation session and temporary page server paths interfere with each other and can make a healthy corpus look hung or flaky.
 - Keep `src/layout.test.ts` small and durable. For browser-specific or narrow hypothesis work, prefer throwaway probes/scripts and promote only the stable invariants into permanent tests.
 - For Gatsby canary work, sweep widths cheaply first and only diagnose the mismatching widths in detail. The slow detailed checker is for narrowing root causes, not for every width by default.
 - For Arabic corpus work, trust the RTL `Range`-based diagnostics over the old span-probe path. The remaining misses are currently more about break policy than raw width sums.
@@ -90,6 +91,7 @@ Internal notes for contributors and agents. Use `README.md` as the public source
 - Japanese `羅生門` is now a checked-in canary. The first keep-worthy Japanese rule was semantic, not font-specific: kana iteration marks like `ゝ` / `ゞ` / `ヽ` / `ヾ` should be treated as CJK line-start-prohibited, even when `Intl.Segmenter` emits them as standalone word-like pieces.
 - A second Japanese prose corpus (`蜘蛛の糸`) is now checked in. It is exact at Chrome/Safari anchor widths, `8/9 exact` on the sampled Chrome sweep, and `56/61 exact` on Chrome `step=10`. Treat the recurring one-line positive field as a real Japanese edge-fit class, not source dirt.
 - Chinese prose (`祝福`) is now a checked-in long-form canary. It is exact at the Safari anchors and at Chrome `600 / 800`, but Chrome keeps a broader positive one-line field at narrow widths, with `PingFang SC` widening that field relative to `Songti SC`.
+- A second Chinese prose canary (`故鄉`) is now checked in. It keeps the same broad class: exact Safari anchors, exact Chrome `600 / 800`, and a narrower but still real positive field in Chrome, with a different `Songti SC` vs `PingFang SC` split.
 - The corpus diagnostics should derive our candidate lines from `layoutWithLines()`, not from a second local line-walker. That avoids SHY and future custom-break drift between the hot path and the diagnostic path.
 - Current line-fit tolerance is `0.005` for Chromium/Gecko and `1/64` for Safari/WebKit. That bump was justified by the remaining Arabic fine-width field and did not move the solved browser corpus or Gatsby coarse canary.
 

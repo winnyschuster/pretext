@@ -33,6 +33,7 @@ Conventions:
 | `ja-kumo-no-ito` | Japanese | exact | exact | `8/9 exact` | `56/61 exact` | second Japanese canary; same broad one-line positive edge-fit field as `羅生門`, but smaller |
 | `ja-rashomon` | Japanese | exact | exact | `4/9 exact` | `54/61 exact` | real Japanese canary; remaining field is mostly opening-quote / punctuation compression plus a few one-line edge fits |
 | `ko-unsu-joh-eun-nal` | Korean | exact | not recently rerun | n/a | `61/61 exact` | Korean coarse corpus is clean |
+| `zh-guxiang` | Chinese | exact at `600 / 800`, `+64px` at `300` | exact | `6/9 exact` | `53/61 exact` | second Chinese canary; same Chrome-positive / Safari-clean split as `祝福`, but slightly healthier overall |
 | `zh-zhufu` | Chinese | exact at `600 / 800`, `+32px` at `300` | exact | `7/9 exact` | `44/61 exact` | real Chinese canary; broad positive one-line field in Chrome, exact Safari anchors |
 | `th-nithan-vetal-story-1` | Thai | exact at key sentinels after fixes | not recently rerun | n/a | `59/61 exact` | two remaining coarse one-line misses |
 | `th-nithan-vetal-story-7` | Thai | exact | exact | `9/9 exact` | not fully rerun | second Thai canary stays healthy |
@@ -64,6 +65,7 @@ These are sampled, not exhaustive.
 | `ja-kumo-no-ito` | sampled matrix has a small field | `Hiragino Mincho ProN` had `+32px` at `450px`; `Hiragino Sans` was `5/5 exact` |
 | `ja-rashomon` | sampled matrix has small field | `Hiragino Mincho ProN` was `3/5 exact`; `Hiragino Sans` improved to `4/5 exact`, but `450px` still missed |
 | `ko-unsu-joh-eun-nal` | clean on sampled matrix | `Apple SD Gothic Neo`, `AppleMyungjo` |
+| `zh-guxiang` | sampled matrix has a real font split | `Songti SC` had `+64px` at `300` and `+32px` at `450`; `PingFang SC` improved `450` but still missed `300` |
 | `zh-zhufu` | sampled matrix has a real font split | `Songti SC` was `3/5 exact`; `PingFang SC` widened the positive field to `300 / 450 / 600` |
 | `th-nithan-vetal-story-1` | clean on sampled matrix | `Thonburi`, `Ayuthaya` |
 | `th-nithan-vetal-story-7` | clean on sampled matrix | `Thonburi`, `Ayuthaya` |
@@ -83,10 +85,13 @@ Useful commands:
 bun run corpus-check --id=ko-unsu-joh-eun-nal 300 600 800
 bun run corpus-check --id=ja-kumo-no-ito 300 600 800
 bun run corpus-check --id=ja-rashomon 300 600 800
+bun run corpus-check --id=zh-guxiang 300 600 800
 bun run corpus-check --id=zh-zhufu 300 600 800
+bun run corpus-sweep --id=zh-guxiang --start=300 --end=900 --step=10
 bun run corpus-sweep --id=ja-kumo-no-ito --start=300 --end=900 --step=10
 bun run corpus-sweep --id=ja-rashomon --start=300 --end=900 --step=10
 bun run corpus-sweep --id=zh-zhufu --start=300 --end=900 --step=10
+bun run corpus-font-matrix --id=zh-guxiang --samples=5
 bun run corpus-sweep --id=my-cunning-heron-teacher --start=300 --end=900 --step=10
 bun run corpus-sweep --id=my-bad-deeds-return-to-you-teacher --samples=9
 bun run corpus-font-matrix --id=zh-zhufu --samples=5
