@@ -125,7 +125,7 @@ const events: { mousemove: MouseEvent | null; click: MouseEvent | null; blur: bo
   blur: false,
 }
 const pointer = { x: -Infinity, y: -Infinity }
-let currentLogoHits: LogoHits | null = null
+let currentLogoHits!: LogoHits
 let hoveredLogo: LogoKind | null = null
 const logoAnimations: { openai: LogoAnimationState; claude: LogoAnimationState } = {
   openai: { angle: 0, spin: null },
@@ -140,7 +140,6 @@ const domCache: DomCache = {
   headlineLines: [],
   bodyLines: [],
 }
-let mounted = false
 
 function createHeadline(): HTMLHeadingElement {
   const element = document.createElement('h1')
@@ -164,15 +163,13 @@ function createLogo(className: string, alt: string, src: string): HTMLImageEleme
   return element
 }
 
-function ensureMounted(): void {
-  if (mounted) return
+function mountStaticNodes(): void {
   stage.append(
     domCache.headline,
     domCache.credit,
     domCache.openaiLogo,
     domCache.claudeLogo,
   )
-  mounted = true
 }
 
 const [, openaiLayout, claudeLayout, openaiHit, claudeHit] = await Promise.all([
@@ -338,7 +335,6 @@ function projectBodyLines(lines: PositionedLine[], className: string, font: stri
 }
 
 function projectStaticLayout(layout: PageLayout, pageHeight: number): void {
-  ensureMounted()
   stage.style.height = `${pageHeight}px`
 
   domCache.openaiLogo.style.left = `${layout.openaiRect.x}px`
@@ -385,11 +381,6 @@ function fitHeadlineFontSize(headlineWidth: number, pageWidth: number): number {
   }
 
   return best
-}
-
-function setHoveredLogo(nextHovered: LogoKind | null): void {
-  if (hoveredLogo === nextHovered) return
-  hoveredLogo = nextHovered
 }
 
 function easeSpin(t: number): number {
@@ -624,52 +615,17 @@ function evaluateLayout(
   }
 }
 
-function render(now: number): boolean {
+function commitFrame(now: number): boolean {
   const { font, lineHeight } = getTypography()
   const root = document.documentElement
   const pageWidth = root.clientWidth
   const pageHeight = root.clientHeight
-
-  // === handle inputs against the previous committed hit geometry
-  if (events.click !== null) {
-    pointer.x = events.click.clientX
-    pointer.y = events.click.clientY
-  }
-  if (events.mousemove !== null) {
-    pointer.x = events.mousemove.clientX
-    pointer.y = events.mousemove.clientY
-  }
-
-  const previousLogoHits = currentLogoHits
-  const nextHovered =
-    events.blur || previousLogoHits === null
-      ? null
-      : isPointInPolygon(previousLogoHits.openai, pointer.x, pointer.y)
-        ? 'openai'
-        : isPointInPolygon(previousLogoHits.claude, pointer.x, pointer.y)
-          ? 'claude'
-          : null
-  setHoveredLogo(nextHovered)
-
-  if (events.click !== null && previousLogoHits !== null) {
-    if (isPointInPolygon(previousLogoHits.openai, pointer.x, pointer.y)) {
-      startLogoSpin('openai', -1, now)
-    } else if (isPointInPolygon(previousLogoHits.claude, pointer.x, pointer.y)) {
-      startLogoSpin('claude', 1, now)
-    }
-  }
-
   const animating = updateSpinState(now)
   const layout = buildLayout(pageWidth, pageHeight, lineHeight)
   const { headlineLines, creditLeft, creditTop, leftLines, rightLines, hits } = evaluateLayout(layout, lineHeight, preparedBody)
 
-  // === commit state
-  events.mousemove = null
-  events.click = null
-  events.blur = false
   currentLogoHits = hits
 
-  // === DOM writes
   projectStaticLayout(layout, pageHeight)
   projectHeadlineLines(headlineLines, layout.headlineFont, layout.headlineLineHeight)
   domCache.credit.style.left = `${creditLeft}px`
@@ -685,6 +641,43 @@ function render(now: number): boolean {
   document.body.style.cursor = hoveredLogo === null ? 'default' : 'pointer'
 
   return animating
+}
+
+function render(now: number): boolean {
+  // === handle inputs against the previous committed hit geometry
+  if (events.click !== null) {
+    pointer.x = events.click.clientX
+    pointer.y = events.click.clientY
+  }
+  if (events.mousemove !== null) {
+    pointer.x = events.mousemove.clientX
+    pointer.y = events.mousemove.clientY
+  }
+
+  const nextHovered =
+    events.blur
+      ? null
+      : isPointInPolygon(currentLogoHits.openai, pointer.x, pointer.y)
+        ? 'openai'
+        : isPointInPolygon(currentLogoHits.claude, pointer.x, pointer.y)
+          ? 'claude'
+          : null
+  hoveredLogo = nextHovered
+
+  if (events.click !== null) {
+    if (isPointInPolygon(currentLogoHits.openai, pointer.x, pointer.y)) {
+      startLogoSpin('openai', -1, now)
+    } else if (isPointInPolygon(currentLogoHits.claude, pointer.x, pointer.y)) {
+      startLogoSpin('claude', 1, now)
+    }
+  }
+
+  // === commit state
+  events.mousemove = null
+  events.click = null
+  events.blur = false
+
+  return commitFrame(now)
 }
 
 function scheduleRender(): void {
@@ -709,4 +702,6 @@ document.addEventListener('click', event => {
   events.click = event
   scheduleRender()
 })
-scheduleRender()
+
+mountStaticNodes()
+commitFrame(performance.now())
