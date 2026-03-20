@@ -125,6 +125,33 @@ The divergence is small and varies by character adjacency — it's not a constan
 - **[chenglou/text-layout](https://github.com/chenglou/text-layout)** — Sebastian Markbage's original prototype. Canvas measureText + bidi from pdf.js. No caching, no Intl.Segmenter. Our direct ancestor.
 - **[tex-linebreak](https://github.com/robertknight/tex-linebreak)** — Knuth-Plass optimal line breaking. Quality over speed, not for DOM height prediction.
 - **[linebreak](https://github.com/foliojs/linebreak)** (foliojs) — UAX #14 Unicode Line Breaking Algorithm. Used by PDFKit, Sebastian's original.
+- **[wiedymi/text-shaper](https://github.com/wiedymi/text-shaper)** — a much larger self-contained TypeScript font/shaping stack (OpenType layout, bidi, UAX #14 / #29-ish utilities, rasterization, atlases). Useful reference material, but not a runtime replacement for Pretext's browser-query architecture.
+
+## Discovery: text-shaper is a useful reference, not a runtime replacement
+
+Compared `text-shaper` against `src/analysis.ts`, `src/line-break.ts`, `src/measurement.ts`, and `src/bidi.ts`.
+
+What was worth taking immediately:
+
+- Its Unicode coverage exposed a real gap in our internal `isCJK()` helper: compatibility ideographs plus newer extension blocks were missing. That was a safe direct borrow and is now fixed in the main codebase.
+
+What it is good for:
+
+- Richer Unicode tables to sanity-check boundary-discovery bugs.
+- A fuller bidi implementation than our current rich-path-only metadata helper.
+- Future self-contained shaping / canvas-rendering experiments if we ever intentionally move beyond the browser-query model.
+
+What it is not good for in the current architecture:
+
+- Its `splitWords()` is much worse than `Intl.Segmenter` on browser-relevant Southeast Asian text. Direct probes split Thai / Khmer / Myanmar words into tiny pieces that the browser does not.
+- Its actual paragraph breaker is a simple greedy shaped-glyph pass (`breakIntoLines()`), not a browser-parity layout engine.
+- Its UAX #14 layer is useful as reference, but not sufficient for our runtime: Southeast Asian `SA` is resolved to `AL` in the pair table, and soft hyphen is not modeled as a first-class line-break class there.
+- Owning the font/shaping stack does not help the thing Pretext currently cares about most: matching browser DOM/canvas behavior rather than replacing it.
+
+Bottom line:
+
+- Keep `text-shaper` in mind as reference material and possible future exact-engine substrate.
+- Do not replace `Intl.Segmenter`, our preprocessing layer, or our browser-measurement strategy with it in the current product.
 
 ## Discovery: punctuation accumulation error
 

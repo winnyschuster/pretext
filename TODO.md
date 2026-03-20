@@ -64,6 +64,7 @@ Things not worth doing right now:
 - Do not overfit one-line misses in a single browser/corpus without broader evidence.
 - Do not explode the public API with cache/engine knobs.
 - Do not start broad perf work yet unless a change clearly regresses the hot path.
+- Do not replace `Intl.Segmenter` / browser-oriented preprocessing with `text-shaper`'s pure TypeScript segmentation or its greedy glyph-line breaker. Keep that repo as reference material, not the default runtime path.
 
 Best next tasks:
 
@@ -77,6 +78,7 @@ Still-open design questions:
 - Whether line-fit tolerance should stay as a browser shim or move toward runtime calibration.
 - Whether explicit hard breaks / paragraph-aware layout should become first-class.
 - Whether server canvas support should become an explicit supported backend.
+- Whether the rich path eventually wants a fuller bidi metadata helper for custom rendering / selection-like work, without changing the hot-path layout architecture.
 - Whether automatic hyphenation beyond manual soft hyphen is in scope, and if so whether it should stay entirely preprocess-driven or expose any language/pattern hooks.
 - Whether intrinsic sizing / logical width APIs are needed beyond fixed-width height prediction.
 - Whether bidi rendering concerns like selection/copy-paste belong here or stay out of scope.
